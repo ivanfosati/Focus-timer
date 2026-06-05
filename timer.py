@@ -47,7 +47,7 @@ def main():
     while True:
         try:
             clock = Clock()
-            userInput = input("Qué vas a hacer hoy?\n")
+            userInput = input("Qué vas a hacer hoy? (study, break, stats)\n")
 
             if userInput == "study":
                 t = int(input("Tiempo: "))
