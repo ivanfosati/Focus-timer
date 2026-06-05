@@ -1,101 +1,75 @@
 #!/usr/bin/env python3
 import time
-from database import DataBase
+import database
+import subprocess
 
-#from datetime import datetime
+class Clock:
+    def __init__(self):
+        database.createTable()
 
+    def timer(self, label, _duration):
+        startTimer = time.time()
+        endTimer = startTimer + _duration
         
-def Timer(duration):
-    start_time = time.time()            # Guarda el tiempo (en segundos) apenas la funcion es llamada
-    final_time = start_time + duration + 1     # tiempo total de estudio + 1 seg. para redondeo
-    t_inicial = time.gmtime(start_time)
-    t_final   = time.gmtime(final_time)
+        # Format times for database
+        formatted_stimer = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(startTimer))
+        formatted_etimer= time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(endTimer))
 
-    while time.time() <= final_time:
-        elapsed_time = int(time.time() - start_time)  # time.time() devuelve nuevamente el tiempo 
-        hours, remainder = divmod(elapsed_time, 3600) # y lo resta al primero que guardamos.
-        mins, secs = divmod(remainder, 60)
+        while time.time() <= endTimer:
 
-        # Formato del tiempo #
+            elapsed_time = time.time() - startTimer
+            print(int(elapsed_time), end='\r', flush=True)
+            time.sleep(1)
 
-        # print(f'Time: {time.strftime("%d-%m-%Y %H:%M:%S", time.localtime(start_time))}', end="\r")
-        print(f'{hours:02d}:{mins:02d}:{secs:02d}', end="\r", flush=True) 
-        time.sleep(1)
+        return (formatted_stimer, 
+                formatted_etimer, 
+                label, 
+                elapsed_time
+                )
 
+    # Funcion que tome los datos y los guarde en database.py
 
-    return t_inicial, t_final, elapsed_time
+    def saveData(self, startTime, endTime, label, time):
+        database.addElements(startTime, endTime, label, time)
 
+    def run(self, label, _duration):
+        startTime, endTime, label, time = self.timer(label, _duration)
+        self.saveData(startTime, endTime, label, time)
 
-
-class Manager:
-    def __init__(self, duration, rest, sets):
-        self.duration = duration
-        self.rest = rest
-        self.sets = sets
-
-        self.queue = []
-        self.planner(sets)
-
-    def planner(self, sets):
-        n_sets = (2 * sets) -1 
-        i = 0
-        # Crear orden de tareas
-        for i in range(0, n_sets):
-            if (i % 2 == 0):
-                self.queue.insert(i, "study")
-            else:
-                self.queue.insert(i, "break")
-
-        self.queue.append("end")
-        
-        return self.queue
-
-
-    def show_time(self): 
-        total_time = 0 
-
-        for label in self.queue:
-            if (label == "study"):
-                print("Estudiando: ")
-                Timer(self.duration)
-                total_time += Timer(self.duration).elapsed_time
-                print(f'Tiempo total de estudio: {total_time}')
-                
-            elif (label == "break"):
-                print("Descansando: ")
-                Timer(self.rest)
-            
-            else:
-                print("Sesión finalizada. Felicidades!")
-                break
-
-        return total_time
-
-    def hello(self):
-        t_inicial = t_inicial.Timer(self.duration)
-        t_final = t_final.Timer(self.duration)
-        total_time = total_time.show_time(self)
-
-        db = DataBase
-        db.add_elements(self, t_inicial, t_final, total_time)
+        subprocess.call("dunstify 'Sesión terminada'", shell=True)
+        subprocess.call("paplay '/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga'", 
+                        shell=True)
+    def showData(self):
+        database.showTable()
 
 
 def main():
     while True:
         try:
-            t = int(input("Timer: "))
-            r = int(input("Rest: "))
-            n = int(input("Sets: "))
+            clock = Clock()
+            userInput = input("Qué vas a hacer hoy?\n")
 
-            
+            if userInput == "study":
+                t = int(input("Tiempo: "))
+                clock.run("study", t)
+            elif userInput == "break":
+                b = int(input("Tiempo: "))
+                clock.run("break", b)
+            elif userInput == "stats":
+                clock.showData()
 
-            clock = Manager(t, r, n)
-            clock.show_time()
 
+
+        except KeyboardInterrupt:
+            print("\nProgram terminated by user.")
+            # To-Do
+            # Clean-up and save data just in case.
+            #
+            break
         except ValueError:
+            print("Ingrese otro número.")
 
-            print("Ingrese otro número")
-        
-        
+
+
 if __name__ == "__main__":
     main()
