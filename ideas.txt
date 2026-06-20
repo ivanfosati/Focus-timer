@@ -1,0 +1,14 @@
+while timer:
+    try:
+        count_time()
+    except KeyboardInterruption:
+        # Mas avanzado
+            pause_timer()
+            input("Seguro que quiere salir? se guardara el tiempo hasta el momento")
+            if yes:
+                print("aguarde, guardando datos...")
+                sleep(3)
+                save_data(round-floor-int(tiempo_real_hasta_el_momento))
+            if no:
+                continue_timer()
+                
