@@ -1,6 +1,7 @@
 import sys
 from timer import Clock
-from PySide6.QtCore import Slot, QSize, QTimer, QTime
+import time
+from PySide6.QtCore import Slot, QSize, QTimer, QTime, Qt
 from PySide6.QtWidgets import (QApplication, 
                                QLabel,
                                QPushButton, 
@@ -84,11 +85,17 @@ if __name__ == "__main__":
     s_label = QLabel()
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     label.setStyleSheet(
-            "font-weight: bold; font-size: 22px; width: 25px; height: 25px;"
-                )
+            """font-weight: bold; 
+            font-size: 22px; 
+            width: 25px; 
+            height: 25px;""")
+
     s_label.setStyleSheet(
-            "font-weight: bold; font-size: 16px; width: 25px; height: 25px;"
-                )
+            """font-weight: bold; 
+            font-size: 16px; 
+            width: 25px; 
+            height: 25px""")
+
     start_clock = time.monotonic()
 
     def timerEvent():
@@ -96,7 +103,7 @@ if __name__ == "__main__":
 
 
         if elapsed < 10:
-            label.setText(str(elapsed))
+            label.setText("Time: {:0.2f}".format(elapsed))
         else:
             label.setText("Tiempo terminado")
         
