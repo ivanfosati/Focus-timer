@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
-import database
+import database as dt
 import sqlite3
+import numpy as np
 
 conn = sqlite3.connect("app.db")
 cur  = conn.cursor()
